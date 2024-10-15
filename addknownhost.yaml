@@ -1,0 +1,45 @@
+---
+# aktualisiere spezielle known_host auf dem ansibleserver / rb / 2024
+- hosts: "{{myhosts|lower}}"
+  become: true
+  become_user: root
+  gather_facts: false
+  vars:
+    # - kn: "~/.ssh/known_hosts"
+    - kn: "/my/ansible/directory/ssh/ssh_known_hosts_cae"
+    - srv: "myansiblesrv.dom.ain"
+  tasks:
+    - debug:
+        msg:
+          - "{{ ansible_user }}"
+
+    - name: "update {{ inventory_hostname }} in known_host"
+      shell: "{{ item }}"
+      delegate_to: "{{srv}}"
+      ignore_errors: true
+      loop:
+        - "ssh-keygen -H -F {{inventory_hostname}} -f {{kn}} && ssh-keygen -R {{inventory_hostname}} -f {{kn}}"
+        - "ssh-keyscan -t ssh-rsa {{inventory_hostname }} >> {{kn}}"
+
+    - name: "update {{ inventory_hostname_short }} in known_host"
+      shell: "{{ item }}"
+      delegate_to: "{{srv}}"
+      # ignore_errors: true
+      # failed_when: false
+      loop:
+        - "ssh-keygen -H -F {{inventory_hostname_short}} -f {{kn}} && ssh-keygen -R {{inventory_hostname_short }} -f {{kn}}"
+        - "ssh-keyscan -t ssh-rsa {{inventory_hostname_short }} >> {{kn}}"
+
+    - name: "chown to myansibleuser"
+      shell: "{{ item }}"
+      delegate_to: "{{srv}}"
+      # ignore_errors: true
+      # failed_when: false
+      loop:
+        - "chown myansibleuser:myansiblegroup {{kn}}*"
+        - "chmod g+w {{kn}}*"
+
+#    - debug:
+#        msg:
+#          - "{{ ansible_user }}"
+...

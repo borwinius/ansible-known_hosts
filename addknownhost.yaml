@@ -6,7 +6,7 @@
   gather_facts: false
   vars:
     # - kn: "~/.ssh/known_hosts"
-    - kn: "/my/ansible/directory/ssh/ssh_known_hosts_cae"
+    - kn: "/my/ansible/directory/ssh/my_known_hosts"
     - srv: "myansiblesrv.dom.ain"
   tasks:
     - debug:
